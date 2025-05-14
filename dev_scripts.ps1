@@ -71,6 +71,17 @@ function CheckCode {
     LintCode
 }
 
+# Limpiar archivos basura
+function CleanProject {
+    Write-Host "Limpiando archivos temporales y basura..." -ForegroundColor Yellow
+    Get-ChildItem -Path . -Recurse -Filter "__pycache__" | Remove-Item -Force -Recurse
+    Get-ChildItem -Path . -Recurse -Filter "*.pyc" | Remove-Item -Force
+    Get-ChildItem -Path . -Recurse -Filter "*.log" | Remove-Item -Force
+    Remove-Item -Path ".\.pytest_cache" -Force -Recurse -ErrorAction Ignore
+    Remove-Item -Path ".\$VenvName" -Force -Recurse -ErrorAction Ignore
+    Write-Host "Limpieza completada." -ForegroundColor Green
+}
+
 # Tareas de Terraform (ejemplos)
 function TerraformInit {
     terraform init
@@ -102,10 +113,11 @@ while ($true) {
     Write-Host "9. Formatear código"
     Write-Host "10. Analizar código"
     Write-Host "11. Ejecutar formateo y linting"
-    Write-Host "12. Terraform Init"
-    Write-Host "13. Terraform Plan"
-    Write-Host "14. Terraform Apply"
-    Write-Host "15. Terraform Destroy"
+    Write-Host "12. Limpiar proyecto"
+    Write-Host "13. Terraform Init"
+    Write-Host "14. Terraform Plan"
+    Write-Host "15. Terraform Apply"
+    Write-Host "16. Terraform Destroy"
     Write-Host "q. Salir"
 
     $selection = Read-Host "Ingresa el número de la acción"
@@ -122,10 +134,11 @@ while ($true) {
         "9" { FormatCode }
         "10" { LintCode }
         "11" { CheckCode }
-        "12" { TerraformInit }
-        "13" { TerraformPlan }
-        "14" { TerraformApply }
-        "15" { TerraformDestroy }
+        "12" { CleanProject }
+        "13" { TerraformInit }
+        "14" { TerraformPlan }
+        "15" { TerraformApply }
+        "16" { TerraformDestroy }
         "q" { Write-Host "Saliendo..." -ForegroundColor Green; exit }
         default { Write-Host "Opción inválida." -ForegroundColor Red }
     }
