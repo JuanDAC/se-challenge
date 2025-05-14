@@ -8,6 +8,7 @@ REQUIREMENTS_FILE = requirements.txt
 MAIN_APP = main:app
 HOST = 0.0.0.0
 PORT = 8000
+FIND = find . -type f -name
 
 # Crear el entorno virtual
 venv:
@@ -53,6 +54,16 @@ lint: venv install-deps
 
 # Ejecutar formateo y linting
 check: format lint
+
+# Limpiar archivos basura
+clean:
+	@echo "Limpiando archivos temporales y basura..."
+	$(FIND) "__pycache__" -delete
+	$(FIND) "*.pyc" -delete
+	$(FIND) "*.log" -delete
+	$(FIND) ".pytest_cache" -type d -exec rm -rf {} +
+	rm -rf $(VENV_NAME)
+	@echo "Limpieza completada."
 
 # Tareas relacionadas con Terraform (solo ejemplos, debes adaptarlos a tu configuración de GCP)
 terraform-init:
