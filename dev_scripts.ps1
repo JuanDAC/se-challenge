@@ -18,6 +18,9 @@ function CreateVenv {
 # Activar el entorno virtual
 function ActivateVenv {
     Write-Host "Activa el entorno virtual con: .$VenvName/Scripts/Activate.ps1" -ForegroundColor Yellow
+    Set-Clipboard ".\$VenvName\Scripts\Activate.ps1"
+    Write-Host "El script de activación ha sido copiado al portapapeles." -ForegroundColor Green
+    exit
 }
 
 # Instalar las dependencias
