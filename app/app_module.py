@@ -1,0 +1,14 @@
+from injector import Injector, Module
+from app.infrastructure.infrastructure_module import InfrastructureModule
+from app.use_cases.use_cases_module import UseCasesModule
+
+
+class AppModule(Module):
+    def configure(self, binder):
+        super().configure(binder)
+
+        binder.install(InfrastructureModule())
+        binder.install(UseCasesModule())
+
+
+injector = Injector([AppModule()])
