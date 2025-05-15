@@ -10,62 +10,62 @@ HOST = 0.0.0.0
 PORT = 8000
 FIND = find . -type f -name
 
-# Crear el entorno virtual
+# Create the virtual environment
 venv:
 	python -m venv $(VENV_NAME)
 
-# Activar el entorno virtual (solo instrucción, no se ejecuta automáticamente)
+# Activate the virtual environment (instruction only, does not execute automatically)
 activate-venv:
-	@echo "Activa el entorno virtual con: source $(VENV_NAME)/Scripts/activate (en macOS/Linux) o .\\$(VENV_NAME)\\Scripts\\activate (en Windows)"
+	@echo "Activate the virtual environment with: source $(VENV_NAME)/Scripts/activate (on macOS/Linux) or .\\$(VENV_NAME)\\Scripts\\activate (on Windows)"
 
-# Instalar las dependencias del archivo requirements.txt
+# Install dependencies from requirements.txt
 install-deps: venv
 	$(PIP) install -r $(REQUIREMENTS_FILE)
 
-# Volcar las dependencias actuales al archivo requirements.txt
+# Dump current dependencies to requirements.txt
 freeze-deps:
 	$(PIP) freeze > $(REQUIREMENTS_FILE)
 
-# Ejecutar la aplicación en local con recarga automática
+# Run the app locally with auto-reload
 run-dev: venv install-deps
 	$(UVICORN) $(MAIN_APP) --host $(HOST) --port $(PORT) --reload
 
-# Ejecutar la aplicación en local sin recarga automática
+# Run the app locally without auto-reload
 run: venv install-deps
 	$(UVICORN) $(MAIN_APP) --host $(HOST) --port $(PORT)
 
-# Ejecutar las pruebas con pytest
+# Run tests with pytest
 test: venv install-deps
 	$(PYTEST)
 
-# Ejecutar las pruebas con cobertura
+# Run tests with coverage
 test-cov: venv install-deps
 	$(PYTEST) --cov=. --cov-report term-missing
 
-# Formatear el código con black
+# Format code with black
 format: venv install-deps
 	$(PIP) install --upgrade black
-	black .
+	black . --exclude=$(VENV_NAME)
 
-# Analizar el código con flake8
+# Lint code with flake8
 lint: venv install-deps
 	$(PIP) install --upgrade flake8
-	flake8 .
+	flake8 . --exclude=$(VENV_NAME)
 
-# Ejecutar formateo y linting
+# Run formatting and linting
 check: format lint
 
-# Limpiar archivos basura
+# Clean up temporary and junk files
 clean:
-	@echo "Limpiando archivos temporales y basura..."
+	@echo "Cleaning temporary and junk files..."
 	$(FIND) "__pycache__" -delete
 	$(FIND) "*.pyc" -delete
 	$(FIND) "*.log" -delete
 	$(FIND) ".pytest_cache" -type d -exec rm -rf {} +
 	rm -rf $(VENV_NAME)
-	@echo "Limpieza completada."
+	@echo "Cleanup completed."
 
-# Tareas relacionadas con Terraform (solo ejemplos, debes adaptarlos a tu configuración de GCP)
+# Terraform-related tasks (examples only, adapt to your GCP setup)
 terraform-init:
 	terraform init
 
