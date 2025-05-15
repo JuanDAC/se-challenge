@@ -5,10 +5,12 @@ from datetime import datetime, timezone
 
 from pydantic import BaseModel, EmailStr, Field
 
+
 class UserRole(str, Enum):
     ADMIN = "admin"
     USER = "user"
     GUEST = "guest"
+
 
 class UserBase(BaseModel):
     email: Optional[EmailStr] = None
@@ -18,6 +20,7 @@ class UserBase(BaseModel):
     active: Optional[bool] = True
     role: Optional[UserRole] = UserRole.USER
 
+
 class UserCreateSchema(UserBase):
     email: EmailStr
     username: str = Field(..., min_length=3, max_length=50)
@@ -25,8 +28,10 @@ class UserCreateSchema(UserBase):
     first_name: str
     last_name: str
 
+
 class UserUpdateSchema(UserBase):
     password: Optional[str] = None
+
 
 class UserInDBBaseSchema(UserBase):
     id: UUID = Field(default_factory=uuid4)
@@ -36,6 +41,7 @@ class UserInDBBaseSchema(UserBase):
 
     class Config:
         orm_mode = True
+
 
 class UserResponseSchema(UserInDBBaseSchema):
     hashed_password: Optional[str] = Field(None, exclude=True)
