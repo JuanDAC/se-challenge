@@ -8,6 +8,8 @@ class EnvironmentSettings(BaseSettings):
     DB_NAME: str
     DB_USER: str
     DB_PASSWORD: str
+    DB_DIALECT: str
+    DB_SCHEMA: str
     API_HOST: str
     API_PORT: int
     DEBUG: bool
