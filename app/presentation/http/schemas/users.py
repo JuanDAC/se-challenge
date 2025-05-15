@@ -14,14 +14,9 @@ class UserRole(str, Enum):
 
 class UserCreateApiSchema(BaseModel):
     email: EmailStr
-    username: str = Field(..., min_length=3, max_length=50, regex=r"^[a-zA-Z0-9_-]+$")
-    password: str = Field(
-        ...,
-        min_length=8,
-        regex=r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$",
-    )
-    first_name: str = Field(..., min_length=1, max_length=50, regex=r"^[a-zA-Z\s'-]+$")
-    last_name: str = Field(..., min_length=1, max_length=50, regex=r"^[a-zA-Z\s'-]+$")
+    username: str = Field(..., min_length=3, max_length=50, pattern=r"^[a-zA-Z0-9_-]+$")
+    first_name: str = Field(..., min_length=1, max_length=50, pattern=r"^[a-zA-Z\s'-]+$")
+    last_name: str = Field(..., min_length=1, max_length=50, pattern=r"^[a-zA-Z\s'-]+$")
 
     @field_validator("username")
     @classmethod
@@ -29,20 +24,6 @@ class UserCreateApiSchema(BaseModel):
         if not value.isalnum() and "-" not in value and "_" not in value:
             raise ValueError(
                 "Username must contain only alphanumeric characters, hyphens, or underscores."
-            )
-        return value
-
-    @field_validator("password")
-    @classmethod
-    def password_complexity(cls, value):
-        if (
-            sum(c.islower() for c in value) < 1
-            or sum(c.isupper() for c in value) < 1
-            or sum(c.isdigit() for c in value) < 1
-            or sum(c in "@$!%*?&" for c in value) < 1
-        ):
-            raise ValueError(
-                "Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character (@$!%*?&)."
             )
         return value
 
@@ -64,18 +45,13 @@ class UserCreateApiSchema(BaseModel):
 class UserUpdateApiSchema(BaseModel):
     email: Optional[EmailStr] = None
     username: Optional[str] = Field(
-        None, min_length=3, max_length=50, regex=r"^[a-zA-Z0-9_-]+$"
-    )
-    password: Optional[str] = Field(
-        None,
-        min_length=8,
-        regex=r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$",
+        None, min_length=3, max_length=50, pattern=r"^[a-zA-Z0-9_-]+$"
     )
     first_name: Optional[str] = Field(
-        None, min_length=1, max_length=50, regex=r"^[a-zA-Z\s'-]+$"
+        None, min_length=1, max_length=50, pattern=r"^[a-zA-Z\s'-]+$"
     )
     last_name: Optional[str] = Field(
-        None, min_length=1, max_length=50, regex=r"^[a-zA-Z\s'-]+$"
+        None, min_length=1, max_length=50, pattern=r"^[a-zA-Z\s'-]+$"
     )
     active: Optional[bool] = None
 
@@ -90,20 +66,6 @@ class UserUpdateApiSchema(BaseModel):
         ):
             raise ValueError(
                 "Username must contain only alphanumeric characters, hyphens, or underscores."
-            )
-        return value
-
-    @field_validator("password")
-    @classmethod
-    def password_complexity_update(cls, value):
-        if value is not None and (
-            sum(c.islower() for c in value) < 1
-            or sum(c.isupper() for c in value) < 1
-            or sum(c.isdigit() for c in value) < 1
-            or sum(c in "@$!%*?&" for c in value) < 1
-        ):
-            raise ValueError(
-                "Password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character (@$!%*?&)."
             )
         return value
 
@@ -122,7 +84,7 @@ class UserUpdateApiSchema(BaseModel):
             )
         return value
 
-    @field_validator("*", pre=True, each_item=False)
+    @field_validator("*", mode="before")
     @classmethod
     def check_at_least_one_value(cls, value, field):
         if value is not None:
@@ -130,16 +92,12 @@ class UserUpdateApiSchema(BaseModel):
             return value
         return value
 
-    @classmethod
-    def __modify_schema__(cls, field_schema):
-        field_schema["description"] = "Optional fields to update for a user."
-
     class Config:
         extra = "forbid"
 
     _has_data: bool = False
 
-    @field_validator("*", whole=True)
+    @field_validator("*", mode="before")
     @classmethod
     def at_least_one_field_updated(cls, values):
         if not cls._has_data and not values:
@@ -159,7 +117,8 @@ class UserResponseApiSchema(BaseModel):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+        
 
 
 class UserListResponseApiSchema(BaseModel):
