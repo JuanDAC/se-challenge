@@ -6,7 +6,7 @@ $Python = "$VenvName/Scripts/python"
 $Pytest = "$VenvName/Scripts/pytest"
 $Uvicorn = "$VenvName/Scripts/uvicorn"
 $RequirementsFile = "requirements.txt"
-$MainApp = "main:app"
+$MainApp = "app:presentation:http:app"
 $ProjectHost = "0.0.0.0"
 $Port = "8000"
 
