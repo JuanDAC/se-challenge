@@ -2,38 +2,38 @@ import uuid
 from uuid import UUID, uuid4
 from datetime import datetime, timezone
 from typing import List, Optional, Dict
-from app.domain.entities.user import (
-    UserCreateSchema,
-    UserUpdateSchema,
-    UserInDBBaseSchema,
+from app.domain.entities.users import (
+    UserCreate,
+    UserUpdate,
+    UserInDBBase,
 )
 from app.ports.repositories import UserRepository
 
 
 class InMemoryUserRepository(UserRepository):
     def __init__(self):
-        self._users: Dict[UUID, UserInDBBaseSchema] = {}
+        self._users: Dict[UUID, UserInDBBase] = {}
 
-    def get_by_id(self, user_id: UUID) -> Optional[UserInDBBaseSchema]:
+    def get_by_id(self, user_id: UUID) -> Optional[UserInDBBase]:
         return self._users.get(user_id)
 
-    def get_by_username(self, username: str) -> Optional[UserInDBBaseSchema]:
+    def get_by_username(self, username: str) -> Optional[UserInDBBase]:
         for user in self._users.values():
             if user.username == username:
                 return user
         return None
 
-    def get_by_email(self, email: str) -> Optional[UserInDBBaseSchema]:
+    def get_by_email(self, email: str) -> Optional[UserInDBBase]:
         for user in self._users.values():
             if user.email == email:
                 return user
         return None
 
-    def get_all(self, skip: int = 0, limit: int = 100) -> List[UserInDBBaseSchema]:
+    def get_all(self, skip: int = 0, limit: int = 100) -> List[UserInDBBase]:
         all_users = list(self._users.values())
         return all_users[skip : skip + limit]
 
-    def add(self, user_entity: UserCreateSchema) -> UserInDBBaseSchema:
+    def add(self, user_entity: UserCreate) -> UserInDBBase:
         if self.get_by_username(user_entity.username):
             raise ValueError(
                 f"User with username {user_entity.username} already exists"
@@ -48,8 +48,8 @@ class InMemoryUserRepository(UserRepository):
         return user_entity
 
     def update(
-        self, user_id: UUID, user_update_data: UserUpdateSchema
-    ) -> Optional[UserInDBBaseSchema]:
+        self, user_id: UUID, user_update_data: UserUpdate
+    ) -> Optional[UserInDBBase]:
         if user_id not in self._users:
             return None
 
