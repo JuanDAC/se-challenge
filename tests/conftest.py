@@ -70,7 +70,7 @@ def client_functional(in_memory_user_repo):
 def unique_user_payload(faker):
     return {
         "username": faker.user_name() + str(uuid4())[:8],
-        "email": faker.email() + str(uuid4())[:8],
+        "email":  str(uuid4())[:8] + faker.email(),
         "first_name": faker.first_name(),
         "last_name": faker.last_name(),
         "role": faker.random_element(elements=("user", "admin", "guest")),
