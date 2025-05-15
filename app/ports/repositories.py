@@ -1,7 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 from uuid import UUID
-from app.domain.entities.user import UserCreateSchema, UserUpdateSchema, UserResponseSchema, UserRole, UserInDBBaseSchema
+from app.domain.entities.user import (
+    UserCreateSchema,
+    UserUpdateSchema,
+    UserResponseSchema,
+    UserRole,
+    UserInDBBaseSchema,
+)
+
 
 class UserRepository(ABC):
     @abstractmethod
@@ -25,7 +32,9 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-    def update(self, user_id: UUID, user_data: UserUpdateSchema) -> Optional[UserInDBBaseSchema]:
+    def update(
+        self, user_id: UUID, user_data: UserUpdateSchema
+    ) -> Optional[UserInDBBaseSchema]:
         pass
 
     @abstractmethod
