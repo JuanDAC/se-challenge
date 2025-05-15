@@ -1,4 +1,4 @@
-# Definiciones de variables (similares al Makefile)
+# Variable definitions (similar to Makefile)
 $PythonVersion = "3.12"
 $VenvName = "venv"
 $Pip = "$VenvName/Scripts/pip"
@@ -10,79 +10,79 @@ $MainApp = "main:app"
 $ProjectHost = "0.0.0.0"
 $Port = "8000"
 
-# Crear el entorno virtual
+# Create virtual environment
 function CreateVenv {
     py -m venv $VenvName
 }
 
-# Activar el entorno virtual
+# Activate virtual environment
 function ActivateVenv {
-    Write-Host "Activa el entorno virtual con: .$VenvName/Scripts/Activate.ps1" -ForegroundColor Yellow
+    Write-Host "Activate the virtual environment with: .\$VenvName\Scripts\Activate.ps1" -ForegroundColor Yellow
     Set-Clipboard ".\$VenvName\Scripts\Activate.ps1"
-    Write-Host "El script de activación ha sido copiado al portapapeles." -ForegroundColor Green
+    Write-Host "Activation script has been copied to clipboard." -ForegroundColor Green
     exit
 }
 
-# Instalar las dependencias
+# Install dependencies
 function InstallDependencies {
     & $Pip install -r $RequirementsFile
 }
 
-# Volcar las dependencias
+# Freeze dependencies
 function FreezeDependencies {
     & $Pip freeze > $RequirementsFile
 }
 
-# Ejecutar en desarrollo
+# Run in development
 function RunDev {
     & $Uvicorn $MainApp --host $ProjectHost --port $Port --reload
 }
 
-# Ejecutar en producción
+# Run in production
 function RunProd {
     & $Uvicorn $MainApp --host $ProjectHost --port $Port
 }
 
-# Ejecutar pruebas
+# Run tests
 function RunTests {
     & $Pytest
 }
 
-# Ejecutar pruebas con cobertura
+# Run tests with coverage
 function RunTestsWithCoverage {
     & $Pytest --cov=. --cov-report term-missing
 }
 
-# Formatear código
+# Format code
 function FormatCode {
     pip install --upgrade black
-    & black .
+    & black . --exclude $VenvName
 }
 
-# Analizar código
+# Lint code
 function LintCode {
     pip install --upgrade flake8
-    & flake8 .
+    & flake8 . --exclude=$VenvName
 }
 
-# Ejecutar formateo y linting
+# Run formatting and linting
 function CheckCode {
     FormatCode
     LintCode
 }
 
-# Limpiar archivos basura
+# Clean project
 function CleanProject {
-    Write-Host "Limpiando archivos temporales y basura..." -ForegroundColor Yellow
+    Write-Host "Cleaning temporary and junk files..." -ForegroundColor Yellow
     Get-ChildItem -Path . -Recurse -Filter "__pycache__" | Remove-Item -Force -Recurse
     Get-ChildItem -Path . -Recurse -Filter "*.pyc" | Remove-Item -Force
     Get-ChildItem -Path . -Recurse -Filter "*.log" | Remove-Item -Force
     Remove-Item -Path ".\.pytest_cache" -Force -Recurse -ErrorAction Ignore
     Remove-Item -Path ".\$VenvName" -Force -Recurse -ErrorAction Ignore
-    Write-Host "Limpieza completada." -ForegroundColor Green
+    Write-Host "Cleanup completed." -ForegroundColor Green
 }
 
-# Tareas de Terraform (ejemplos)
+# Terraform tasks (examples)
 function TerraformInit {
     terraform init
 }
@@ -99,28 +99,28 @@ function TerraformDestroy {
     terraform destroy -auto-approve
 }
 
-# Menú interactivo (opcional, pero útil)
+# Interactive menu (optional, but useful)
 while ($true) {
-    Write-Host "`nSelecciona una acción:"
-    Write-Host "1. Crear entorno virtual"
-    Write-Host "2. Activar entorno virtual"
-    Write-Host "3. Instalar dependencias"
-    Write-Host "4. Volcar dependencias"
-    Write-Host "5. Ejecutar en desarrollo"
-    Write-Host "6. Ejecutar en producción"
-    Write-Host "7. Ejecutar pruebas"
-    Write-Host "8. Ejecutar pruebas con cobertura"
-    Write-Host "9. Formatear código"
-    Write-Host "10. Analizar código"
-    Write-Host "11. Ejecutar formateo y linting"
-    Write-Host "12. Limpiar proyecto"
+    Write-Host "`nSelect an action:"
+    Write-Host "1. Create virtual environment"
+    Write-Host "2. Activate virtual environment"
+    Write-Host "3. Install dependencies"
+    Write-Host "4. Freeze dependencies"
+    Write-Host "5. Run in development"
+    Write-Host "6. Run in production"
+    Write-Host "7. Run tests"
+    Write-Host "8. Run tests with coverage"
+    Write-Host "9. Format code"
+    Write-Host "10. Lint code"
+    Write-Host "11. Run formatting and linting"
+    Write-Host "12. Clean project"
     Write-Host "13. Terraform Init"
     Write-Host "14. Terraform Plan"
     Write-Host "15. Terraform Apply"
     Write-Host "16. Terraform Destroy"
-    Write-Host "q. Salir"
+    Write-Host "q. Quit"
 
-    $selection = Read-Host "Ingresa el número de la acción"
+    $selection = $(Read-Host "Enter the action number").Trim().ToLower()
 
     switch ($selection) {
         "1" { CreateVenv }
@@ -139,7 +139,7 @@ while ($true) {
         "14" { TerraformPlan }
         "15" { TerraformApply }
         "16" { TerraformDestroy }
-        "q" { Write-Host "Saliendo..." -ForegroundColor Green; exit }
-        default { Write-Host "Opción inválida." -ForegroundColor Red }
+        "q" { Write-Host "Exiting..." -ForegroundColor Green; exit }
+        default { Write-Host "Invalid option." -ForegroundColor Red }
     }
 }
