@@ -1,1 +1,15 @@
-
+fastapi
+uvicorn[standard]
+pydantic[email]
+pytest
+httpx 
+Faker
+sqlalchemy
+psycopg2-binary
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+python-dotenv
+injector
+pytest-faker
+pydantic-settings
