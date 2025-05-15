@@ -16,6 +16,7 @@ def in_memory_user_repo():
     yield repo
     repo.clear()
 
+
 @pytest.fixture(scope="function")
 def client(in_memory_user_repo_instance: InMemoryUserRepository):
     class TestSpecificInfrastructureModule(Module):
@@ -27,14 +28,16 @@ def client(in_memory_user_repo_instance: InMemoryUserRepository):
         def provide_user_repository(self) -> UserRepository:
             return self._repo_instance
 
-    test_injector = Injector([
-        ConfigModule(),       
-        UseCasesModule(),     
-        TestSpecificInfrastructureModule(in_memory_user_repo_instance)
-    ])
+    test_injector = Injector(
+        [
+            ConfigModule(),
+            UseCasesModule(),
+            TestSpecificInfrastructureModule(in_memory_user_repo_instance),
+        ]
+    )
 
     try:
-        import app.app_module as app_dependencies_module 
+        import app.app_module as app_dependencies_module
 
         app_dependencies_module.instance = test_injector
 
@@ -50,14 +53,16 @@ def client(in_memory_user_repo_instance: InMemoryUserRepository):
 
 @pytest.fixture(scope="function")
 def client_functional(in_memory_user_repo):
-    from app.app_module import get_user_repository_dependency # Make sure this exists
-    
+    from app.app_module import get_user_repository_dependency  # Make sure this exists
+
     original_overrides = fastapi_app.dependency_overrides.copy()
-    fastapi_app.dependency_overrides[get_user_repository_dependency] = lambda: in_memory_user_repo
-    
+    fastapi_app.dependency_overrides[get_user_repository_dependency] = (
+        lambda: in_memory_user_repo
+    )
+
     with TestClient(fastapi_app) as c:
         yield c
-    
+
     fastapi_app.dependency_overrides = original_overrides
 
 
@@ -68,13 +73,14 @@ def unique_user_payload(faker):
         "email": faker.email() + str(uuid4())[:8],
         "first_name": faker.first_name(),
         "last_name": faker.last_name(),
-        "role": faker.random_element(elements=("user", "admin", "guest"))
+        "role": faker.random_element(elements=("user", "admin", "guest")),
     }
+
 
 @pytest.fixture(scope="function")
 def created_user(client, unique_user_payload):
     response = client.post("/users/", json=unique_user_payload)
     assert response.status_code == 201
     user_data = response.json()
-    
-    yield user_data 
+
+    yield user_data
