@@ -4,10 +4,9 @@ import uuid
 from datetime import timezone
 from datetime import datetime
 from app.domain.entities.users import UserRole
-from sqlalchemy.ext.declarative import declarative_base
 from app.domain.entities.users import UserInDBBase
+from app.config.config_module import Base
 
-Base = declarative_base()
 
 
 class UserModel(Base):
