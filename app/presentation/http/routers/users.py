@@ -42,7 +42,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 )
 def create_user(
     user_data: UserCreateApiSchema,
-    create_user_use_case: CreateUserUseCase = Depends(injector.get(CreateUserUseCase)),
+    create_user_use_case: CreateUserUseCase = Depends(lambda: injector.get(CreateUserUseCase)),
 ):
     """
     Creates a new user.
@@ -60,19 +60,19 @@ def create_user(
 )
 def get_user(
     user_id: UUID,
-    get_user_use_case: GetUserUseCase = Depends(injector.get(GetUserUseCase)),
+    get_user_use_case: GetUserUseCase = Depends(lambda: injector.get(GetUserUseCase)),
 ):
     """
     Retrieves a user by their ID.
     """
     attributes = GetUserUseCaseSchema(user_id=user_id)
-    get_user_use_case.set_param(attributes)
+    get_user_use_case.set_params(attributes)
     user = get_user_use_case.execute()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
-    return UserResponseApiSchema(user.dict())
+    return UserResponseApiSchema(**user.dict())
 
 
 @router.get(
@@ -84,8 +84,8 @@ def get_user(
 def list_users(
     skip: int = 0,
     limit: int = 100,
-    active: Optional[bool] = None,
-    list_users_use_case: ListUsersUseCase = Depends(injector.get(ListUsersUseCase)),
+    active: Optional[bool] = True,
+    list_users_use_case: ListUsersUseCase = Depends(lambda: injector.get(ListUsersUseCase)),
 ):
     """
     Retrieves a list of users with support for pagination and filtering.
@@ -93,7 +93,7 @@ def list_users(
     attributes = ListUsersUseCaseSchema(skip=skip, limit=limit, active=active)
     list_users_use_case.set_params(attributes)
     return [
-        UserResponseApiSchema(user.dict()) for user in list_users_use_case.execute()
+        UserResponseApiSchema(**user.dict()) for user in list_users_use_case.execute()
     ]
 
 
@@ -106,7 +106,7 @@ def list_users(
 def update_user(
     user_id: UUID,
     user_data: UserUpdateApiSchema,
-    update_user_use_case: UpdateUserUseCase = Depends(injector.get(UpdateUserUseCase)),
+    update_user_use_case: UpdateUserUseCase = Depends(lambda: injector.get(UpdateUserUseCase)),
 ):
     """
     Updates the information of an existing user.
@@ -120,7 +120,7 @@ def update_user(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
-    return UserResponseApiSchema(updated_user.dict())
+    return UserResponseApiSchema(**updated_user.dict())
 
 
 @router.delete(
@@ -131,7 +131,7 @@ def update_user(
 )
 def delete_user(
     user_id: UUID,
-    delete_user_use_case: DeleteUserUseCase = Depends(injector.get(DeleteUserUseCase)),
+    delete_user_use_case: DeleteUserUseCase = Depends(lambda: injector.get(DeleteUserUseCase)),
 ):
     """
     Deletes a user from the system.
