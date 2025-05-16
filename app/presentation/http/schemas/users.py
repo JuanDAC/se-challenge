@@ -15,7 +15,9 @@ class UserRole(str, Enum):
 class UserCreateApiSchema(BaseModel):
     email: EmailStr
     username: str = Field(..., min_length=3, max_length=50, pattern=r"^[a-zA-Z0-9_-]+$")
-    first_name: str = Field(..., min_length=1, max_length=50, pattern=r"^[a-zA-Z\s'-]+$")
+    first_name: str = Field(
+        ..., min_length=1, max_length=50, pattern=r"^[a-zA-Z\s'-]+$"
+    )
     last_name: str = Field(..., min_length=1, max_length=50, pattern=r"^[a-zA-Z\s'-]+$")
 
     @field_validator("username")
@@ -119,7 +121,6 @@ class UserResponseApiSchema(BaseModel):
 
     class Config:
         from_attributes = True
-        
 
 
 class UserListResponseApiSchema(BaseModel):
