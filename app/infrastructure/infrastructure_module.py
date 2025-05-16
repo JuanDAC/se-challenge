@@ -25,11 +25,21 @@ from app.infrastructure.security.passlib_data_verifier import (
 )
 
 class InfrastructureModule(Module):
+    def __init__(self, *arg, exclude_classes=None, **kwargs):
+        super().__init__(*arg, **kwargs)
+        self.exclude_classes = exclude_classes or []
+
     def configure(self, binder):
+        super().configure(binder)
 
-        binder.bind(UserRepository, to=SQLAlchemyUserRepository)
-        binder.bind(LoggerServicePort, to=ConsoleLoggerService)
-        binder.bind(HasherServicePort, to=PasslibDataHasher)
-        binder.bind(VerifyDataServicePort, to=PasslibDataVerifier)
+        bindings = [
+            (UserRepository, SQLAlchemyUserRepository),
+            (LoggerServicePort, ConsoleLoggerService),
+            (HasherServicePort, PasslibDataHasher),
+            (VerifyDataServicePort, PasslibDataVerifier),
+        ]
 
+        for interface, implementation in bindings:
+            if interface not in self.exclude_classes:
+                binder.bind(interface, to=implementation)
 
