@@ -41,7 +41,7 @@ class UpdateUser(UpdateUserUseCase, AtomClass):
             )
             user_update_data.hashed_password = self.hasher_service.execute()
 
-        updated_user = self.user_service.update_user(
+        updated_user = self.user_service.update(
             user_id=user_id, user_data=user_update_data
         )
         return updated_user
