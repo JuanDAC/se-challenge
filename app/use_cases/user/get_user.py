@@ -40,15 +40,17 @@ class ListUsers(ListUsersUseCase, AtomClass):
     def __init__(
         self,
         user_service: UserRepository,
+        transaction_manager: TransactionManagerPort,
     ):
         super().__init__()
         self.user_service = user_service
+        self.transaction_manager = transaction_manager
 
     def execute(self) -> List[UserResponse]:
         """
         Executes the logic to list users with pagination and filters.
         """
-        users = self.user_service.list_users(
+        users = self.user_service.get_all(
             skip=self.params.skip, limit=self.params.limit, active=self.params.active
         )
         return users
