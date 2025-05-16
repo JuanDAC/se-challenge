@@ -22,7 +22,13 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-    def get_all(self, skip: int = 0, limit: int = 100, active: Optional[bool] = True, include_deleted: Optional[bool] = False) -> List[UserInDBBase]:
+    def get_all(
+        self,
+        skip: int = 0,
+        limit: int = 100,
+        active: Optional[bool] = True,
+        include_deleted: Optional[bool] = False,
+    ) -> List[UserInDBBase]:
         pass
 
     @abstractmethod
@@ -30,7 +36,9 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-    def update(self, user_id: UUID, user_data: UserUpdate, hashed_password: Optional[str]) -> Optional[UserInDBBase]:
+    def update(
+        self, user_id: UUID, user_data: UserUpdate, hashed_password: Optional[str]
+    ) -> Optional[UserInDBBase]:
         pass
 
     @abstractmethod
