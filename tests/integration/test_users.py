@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from faker import Faker
 from app.config.settings import get_settings
+
 settings = get_settings()
 
 faker = Faker()
@@ -9,7 +10,6 @@ faker = Faker()
 
 # Valid roles defined in the schema
 VALID_ROLES = ["admin", "user", "guest"]
-
 
 
 def is_valid_uuid(val):
@@ -233,7 +233,9 @@ class TestUserCRUD:
         }
 
         # WHEN: A PUT request is made to /users/{user_id} with update data
-        response = client.put(f"{settings.API_V1_STR}/users/{user_id}", json=update_payload)
+        response = client.put(
+            f"{settings.API_V1_STR}/users/{user_id}", json=update_payload
+        )
 
         # THEN: The status code should be 200 (OK)
         assert response.status_code == 200
@@ -262,7 +264,9 @@ class TestUserCRUD:
         update_payload = {"first_name": "Partial Update Name"}
 
         # WHEN: A PUT request is made to /users/{user_id}
-        response = client.put(f"{settings.API_V1_STR}/users/{user_id}", json=update_payload)
+        response = client.put(
+            f"{settings.API_V1_STR}/users/{user_id}", json=update_payload
+        )
 
         # THEN: The status code should be 200 (OK)
         assert response.status_code == 200
@@ -276,7 +280,9 @@ class TestUserCRUD:
         update_payload = {"first_name": "Ghost User"}
 
         # WHEN: A PUT request is made to /users/{non_existent_uuid}
-        response = client.put(f"{settings.API_V1_STR}/users/{non_existent_uuid}", json=update_payload)
+        response = client.put(
+            f"{settings.API_V1_STR}/users/{non_existent_uuid}", json=update_payload
+        )
 
         # THEN: The status code should be 404 (Not Found)
         assert response.status_code == 404
@@ -289,7 +295,9 @@ class TestUserCRUD:
         update_payload = {"email": "not-a-valid-email"}
 
         # WHEN: A PUT request is made to /users/{user_id}
-        response = client.put(f"{settings.API_V1_STR}/users/{user_id}", json=update_payload)
+        response = client.put(
+            f"{settings.API_V1_STR}/users/{user_id}", json=update_payload
+        )
 
         # THEN: The status code should be 422 (Unprocessable Entity)
         assert response.status_code == 422
@@ -318,7 +326,9 @@ class TestUserCRUD:
         update_payload_for_a = {"username": user_b_username}
 
         # WHEN: A PUT request is made to update User A
-        response_update_a = client.put(f"{settings.API_V1_STR}/users/{user_a_id}", json=update_payload_for_a)
+        response_update_a = client.put(
+            f"{settings.API_V1_STR}/users/{user_a_id}", json=update_payload_for_a
+        )
 
         # THEN: The status code should be 400 or 409 (conflict)
         assert response_update_a.status_code in [400, 409]
@@ -333,7 +343,9 @@ class TestUserCRUD:
         user_id_to_delete = create_response.json()["id"]
 
         # WHEN: A DELETE request is made to /users/{user_id_to_delete}
-        delete_response = client.delete(f"{settings.API_V1_STR}/users/{user_id_to_delete}")
+        delete_response = client.delete(
+            f"{settings.API_V1_STR}/users/{user_id_to_delete}"
+        )
 
         # THEN: The status code should be 200 (OK) or 204 (No Content)
         assert delete_response.status_code in [200, 204]
