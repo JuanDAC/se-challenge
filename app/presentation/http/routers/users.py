@@ -42,7 +42,9 @@ router = APIRouter(prefix="/users", tags=["users"])
 )
 def create_user(
     user_data: UserCreateApiSchema,
-    create_user_use_case: CreateUserUseCase = Depends(lambda: injector.get(CreateUserUseCase)),
+    create_user_use_case: CreateUserUseCase = Depends(
+        lambda: injector.get(CreateUserUseCase)
+    ),
 ):
     """
     Creates a new user.
@@ -85,7 +87,9 @@ def list_users(
     skip: int = 0,
     limit: int = 100,
     active: Optional[bool] = True,
-    list_users_use_case: ListUsersUseCase = Depends(lambda: injector.get(ListUsersUseCase)),
+    list_users_use_case: ListUsersUseCase = Depends(
+        lambda: injector.get(ListUsersUseCase)
+    ),
 ):
     """
     Retrieves a list of users with support for pagination and filtering.
@@ -106,7 +110,9 @@ def list_users(
 def update_user(
     user_id: UUID,
     user_data: UserUpdateApiSchema,
-    update_user_use_case: UpdateUserUseCase = Depends(lambda: injector.get(UpdateUserUseCase)),
+    update_user_use_case: UpdateUserUseCase = Depends(
+        lambda: injector.get(UpdateUserUseCase)
+    ),
 ):
     """
     Updates the information of an existing user.
@@ -131,7 +137,9 @@ def update_user(
 )
 def delete_user(
     user_id: UUID,
-    delete_user_use_case: DeleteUserUseCase = Depends(lambda: injector.get(DeleteUserUseCase)),
+    delete_user_use_case: DeleteUserUseCase = Depends(
+        lambda: injector.get(DeleteUserUseCase)
+    ),
 ):
     """
     Deletes a user from the system.
