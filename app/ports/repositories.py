@@ -22,15 +22,15 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-    def get_all(self, skip: int = 0, limit: int = 100) -> List[UserInDBBase]:
+    def get_all(self, skip: int = 0, limit: int = 100, active: Optional[bool] = True, include_deleted: Optional[bool] = False) -> List[UserInDBBase]:
         pass
 
     @abstractmethod
-    def add(self, user_data: UserCreate) -> UserInDBBase:
+    def add(self, user_data: UserCreate, hashed_password: str) -> UserInDBBase:
         pass
 
     @abstractmethod
-    def update(self, user_id: UUID, user_data: UserUpdate) -> Optional[UserInDBBase]:
+    def update(self, user_id: UUID, user_data: UserUpdate, hashed_password: Optional[str]) -> Optional[UserInDBBase]:
         pass
 
     @abstractmethod
