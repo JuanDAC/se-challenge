@@ -57,6 +57,47 @@ API_VERSION=
 
 Fill in the appropriate values for your environment.
 
+## Development Scripts
+
+The project includes helper scripts to automate common development tasks, such as setting up the environment, running the application, and executing tests.
+
+  - For **Windows**, use the PowerShell script `dev_scripts.ps1`. This script provides an interactive menu to select the desired action.
+  - For **Unix-based** systems (Linux, macOS), use the `Makefile`.
+
+### Usage Examples:
+
+**Windows (using PowerShell):**
+
+Run the script to see the interactive menu:
+
+```bash
+.\dev_scripts.ps1
+```
+
+Then select the number corresponding to the desired action (e.g., enter `3` to install dependencies, `5` to run in development).
+
+**Unix-based (Linux/macOS using Make):**
+
+Install dependencies:
+
+```bash
+make install-deps
+```
+
+Run the application in development mode:
+
+```bash
+make run-dev
+```
+
+Run tests:
+
+```bash
+make test
+```
+
+Refer to `Makefile` for a full list of available commands.
+
 ## API Endpoints
 
 The API provides the following endpoints under the base path `/api/v1/`:
@@ -138,4 +179,3 @@ Ensure you have a `.env` file configured for the Docker container to access the 
 -----
 
 **Project Status**: Active Development 🚧
-
