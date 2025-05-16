@@ -36,8 +36,8 @@ class CreateUser(CreateUserUseCase, AtomClass):
             self.hasher_service.set_params(
                 HashDataSchema(data_to_hash=user_create_data.email)
             )
-            user_create_data.hashed_password = self.hasher_service.execute()
+            hashed_password = self.hasher_service.execute()
 
-        created_user = self.user_service.create_user(user_data=user_create_data)
+        created_user = self.user_service.add(user_create_data, hashed_password)
 
         return created_user
