@@ -1,23 +1,42 @@
 from contextlib import contextmanager
 from typing import Iterable
-
+from sqlalchemy.engine.url import URL
 from injector import Module, inject, singleton
 from app.config.environment import get_environment_variables
 from app.ports.transactional.transaction_manager import (
     TransactionManagerPort,
 )
+from sqlalchemy_utils import database_exists, create_database
 
 
 from injector import inject
 from sqlalchemy import create_engine, MetaData, Engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from sqlalchemy.ext.declarative import declarative_base
 env = get_environment_variables()
 
-DATABASE = f"{env.DB_DIALECT}://{env.DB_USER}:{env.DB_PASSWORD}"
-DATABASE_SELECTOR = f"{env.DB_HOST}:{env.DB_PORT}/{env.DB_NAME}"
 
-DATABASE_URL = f"{DATABASE}@{DATABASE_SELECTOR}"
+DATABASE = {
+    'drivername': env.DB_DIALECT,
+    'username': env.DB_USER,
+    'password': env.DB_PASSWORD,
+    'host': env.DB_HOST,
+    'port': env.DB_PORT,
+    'database': env.DB_DATABASE_NAME
+}
+DATABASE_URL = URL.create(**DATABASE)
+
+print(f"Connecting to database: {DATABASE_URL}")
+
+if not database_exists(DATABASE_URL):
+    create_database(DATABASE_URL)
+    print("Database created!")
+else:
+    print("Database already exists.")
+
+Base = declarative_base()
+
 
 def get_engine() -> Engine:
     engine = create_engine(
@@ -29,6 +48,8 @@ def get_engine() -> Engine:
         pool_recycle=3600,
         pool_timeout=30,
     )
+    Base.metadata.create_all(bind=engine)
+
 
 
     engine = create_engine(DATABASE_URL)
@@ -65,10 +86,20 @@ class TransactionManager(TransactionManagerPort[Session]):
             session.close()
 
 
-
 class ConfigModule(Module):
+    def __init__(self, *arg, exclude_classes=None, **kwargs):
+        super().__init__(*arg, **kwargs)
+        self.exclude_classes = exclude_classes or []
+
     def configure(self, binder):
-        binder.bind(Engine, to=get_engine, scope=singleton)
-        binder.bind(sessionmaker[Session], to=get_session, scope=singleton)
-        binder.bind(TransactionManagerPort, to=TransactionManager, scope=singleton)
+        super().configure(binder)
+
+        bindings = [
+            (Engine, get_engine),
+            (sessionmaker[Session], get_session),
+            (TransactionManagerPort, TransactionManager),
+        ]
+        for interface, implementation in bindings:
+            if interface not in self.exclude_classes:
+                binder.bind(interface, to=implementation, scope=singleton)
 
