@@ -15,7 +15,7 @@ from injector import inject
 from app.domain.exceptions import (
     EmailAlreadyExistsError,
     UserNotFoundError,
-    InvalidCredentialsError
+    InvalidCredentialsError,
 )
 
 Session = TypeVar("Session")
@@ -108,7 +108,11 @@ class SQLAlchemyUserRepository(UserRepository, Transactionable):
             return None
 
     def get_all(
-        self, skip: int = 0, limit: int = 100, active: bool = True, include_deleted: bool = False
+        self,
+        skip: int = 0,
+        limit: int = 100,
+        active: bool = True,
+        include_deleted: bool = False,
     ) -> List[UserInDBBase]:
         self.logger_service.info(
             f"Attempting to get all users (skip={skip}, limit={limit}, active={active}, include_deleted={include_deleted})"
@@ -156,10 +160,8 @@ class SQLAlchemyUserRepository(UserRepository, Transactionable):
                 f"Error adding user {user_data.username}: {e}", exc_info=True
             )
             if "ix_users_email" in str(e.orig):
-                self.logger_service.warning(
-                    f"Email already exists: {user_data.email}"
-                )
-                raise EmailAlreadyExistsError("Email already exists") 
+                self.logger_service.warning(f"Email already exists: {user_data.email}")
+                raise EmailAlreadyExistsError("Email already exists")
             elif "ix_users_username" in str(e.orig):
                 self.logger_service.warning(
                     f"Username already exists: {user_data.username}"
