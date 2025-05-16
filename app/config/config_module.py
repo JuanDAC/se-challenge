@@ -14,16 +14,17 @@ from sqlalchemy import create_engine, MetaData, Engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from sqlalchemy.ext.declarative import declarative_base
+
 env = get_environment_variables()
 
 
 DATABASE = {
-    'drivername': env.DB_DIALECT,
-    'username': env.DB_USER,
-    'password': env.DB_PASSWORD,
-    'host': env.DB_HOST,
-    'port': env.DB_PORT,
-    'database': env.DB_DATABASE_NAME
+    "drivername": env.DB_DIALECT,
+    "username": env.DB_USER,
+    "password": env.DB_PASSWORD,
+    "host": env.DB_HOST,
+    "port": env.DB_PORT,
+    "database": env.DB_DATABASE_NAME,
 }
 DATABASE_URL = URL.create(**DATABASE)
 
@@ -49,8 +50,6 @@ def get_engine() -> Engine:
         pool_timeout=30,
     )
     Base.metadata.create_all(bind=engine)
-
-
 
     engine = create_engine(DATABASE_URL)
     metadata = MetaData(schema=env.DB_SCHEMA)
@@ -102,4 +101,3 @@ class ConfigModule(Module):
         for interface, implementation in bindings:
             if interface not in self.exclude_classes:
                 binder.bind(interface, to=implementation, scope=singleton)
-
