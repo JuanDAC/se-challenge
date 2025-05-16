@@ -12,6 +12,7 @@ from app.use_cases.user.get_user import GetUser, ListUsers
 from app.use_cases.user.update_user import UpdateUser
 from app.use_cases.user.delete_user import DeleteUser
 
+
 class UseCasesModule(Module):
     def configure(self, binder):
         super().configure(binder)
@@ -21,4 +22,3 @@ class UseCasesModule(Module):
         binder.bind(UpdateUserUseCase, to=UpdateUser)
         binder.bind(DeleteUserUseCase, to=DeleteUser)
         binder.bind(ListUsersUseCase, to=ListUsers)
-
