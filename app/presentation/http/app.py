@@ -3,7 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.presentation.http.routers.users import router as users_router
 from app.config.environment import get_environment_variables
 from app.config.settings import get_settings
-from app.presentation.http.exceptions.register import register_exception_handlers_from_config
+from app.presentation.http.exceptions.register import (
+    register_exception_handlers_from_config,
+)
 from app.presentation.http.exceptions.mapper import error_mapper
 
 envs = get_environment_variables()
