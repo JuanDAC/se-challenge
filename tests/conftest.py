@@ -10,7 +10,7 @@ from app.config.config_module import ConfigModule
 from app.use_cases.use_cases_module import UseCasesModule
 from app.infrastructure.infrastructure_module import InfrastructureModule
 from app.ports.transactional.transaction_manager import TransactionManagerPort
-from contextlib import contextmanager   
+from contextlib import contextmanager
 from typing import Iterable
 
 
@@ -18,7 +18,6 @@ def in_memory_user_repo():
     repo = InMemoryUserRepository()
     yield repo
     repo.clear()
-
 
 
 class TransactionManager(TransactionManagerPort[bool]):
@@ -30,7 +29,6 @@ class TransactionManager(TransactionManagerPort[bool]):
             raise e
         finally:
             pass
-
 
 
 @pytest.fixture(scope="function")
@@ -54,10 +52,7 @@ def client():
             binder.install(UseCasesModule())
             binder.install(TestSpecificInfrastructureModule())
 
-
-    test_injector = Injector(
-        [AppModule]
-    )
+    test_injector = Injector([AppModule])
 
     try:
         import app.app_module as app_dependencies_module
@@ -72,13 +67,13 @@ def client():
 
     with TestClient(fastapi_app) as test_client:
         yield test_client
-        
+
 
 @pytest.fixture(scope="function")
 def unique_user_payload(faker):
     return {
         "username": faker.user_name() + str(uuid4())[:8],
-        "email":  str(uuid4())[:8] + faker.email(),
+        "email": str(uuid4())[:8] + faker.email(),
         "first_name": faker.first_name(),
         "last_name": faker.last_name(),
         "role": faker.random_element(elements=("user", "admin", "guest")),
