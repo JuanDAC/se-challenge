@@ -1,11 +1,15 @@
 import uuid
 from datetime import datetime
 from faker import Faker
+from app.config.settings import get_settings
+settings = get_settings()
 
 faker = Faker()
 
+
 # Valid roles defined in the schema
 VALID_ROLES = ["admin", "user", "guest"]
+
 
 
 def is_valid_uuid(val):
@@ -31,7 +35,7 @@ class TestUserCRUD:
         payload = unique_user_payload
 
         # WHEN: A POST request is made to /users/
-        response = client.post("/users/", json=payload)
+        response = client.post(f"{settings.API_V1_STR}/users/", json=payload)
 
         # THEN: The response status code should be 201 (Created)
         assert response.status_code == 201
@@ -59,7 +63,7 @@ class TestUserCRUD:
     def test_create_user_duplicate_username(self, client, unique_user_payload):
         # GIVEN: A user already exists with a specific username
         payload1 = unique_user_payload
-        response1 = client.post("/users/", json=payload1)
+        response1 = client.post(f"{settings.API_V1_STR}/users/", json=payload1)
         assert response1.status_code == 201
 
         # AND: New user data with the same username but different email
@@ -72,7 +76,7 @@ class TestUserCRUD:
         }
 
         # WHEN: A POST request is made to /users/ with duplicate data
-        response2 = client.post("/users/", json=payload2)
+        response2 = client.post(f"{settings.API_V1_STR}/users/", json=payload2)
 
         # THEN: The status code should be 400 or 409 (depends on implementation)
         assert response2.status_code in [400, 409]
@@ -83,7 +87,7 @@ class TestUserCRUD:
     def test_create_user_duplicate_email(self, client, unique_user_payload):
         # GIVEN: A user already exists with a specific email
         payload1 = unique_user_payload
-        response1 = client.post("/users/", json=payload1)
+        response1 = client.post(f"{settings.API_V1_STR}/users/", json=payload1)
         assert response1.status_code == 201
 
         # AND: New user data with the same email but different username
@@ -96,7 +100,7 @@ class TestUserCRUD:
         }
 
         # WHEN: A POST request is made to /users/ with duplicate data
-        response2 = client.post("/users/", json=payload2)
+        response2 = client.post(f"{settings.API_V1_STR}/users/", json=payload2)
 
         # THEN: The status code should be 400 or 409
         assert response2.status_code in [400, 409]
@@ -114,7 +118,7 @@ class TestUserCRUD:
         }
 
         # WHEN: A POST request is made to /users/
-        response = client.post("/users/", json=payload)
+        response = client.post(f"{settings.API_V1_STR}/users/", json=payload)
 
         # THEN: The status code should be 422 (Unprocessable Entity)
         assert response.status_code == 422
@@ -132,7 +136,7 @@ class TestUserCRUD:
         payload["email"] = "not-an-email"
 
         # WHEN: A POST request is made to /users/
-        response = client.post("/users/", json=payload)
+        response = client.post(f"{settings.API_V1_STR}/users/", json=payload)
 
         # THEN: The status code should be 422
         assert response.status_code == 422
@@ -147,7 +151,7 @@ class TestUserCRUD:
         payload["role"] = "invalid_role"
 
         # WHEN: A POST request is made to /users/
-        response = client.post("/users/", json=payload)
+        response = client.post(f"{settings.API_V1_STR}/users/", json=payload)
 
         # THEN: The status code should be 422
         assert response.status_code == 422
@@ -161,7 +165,7 @@ class TestUserCRUD:
         user_id = created_user["id"]
 
         # WHEN: A GET request is made to /users/{user_id}
-        response = client.get(f"/users/{user_id}")
+        response = client.get(f"{settings.API_V1_STR}/users/{user_id}")
 
         # THEN: The status code should be 200 (OK)
         assert response.status_code == 200
@@ -177,7 +181,7 @@ class TestUserCRUD:
         non_existent_uuid = str(uuid.uuid4())
 
         # WHEN: A GET request is made to /users/{non_existent_uuid}
-        response = client.get(f"/users/{non_existent_uuid}")
+        response = client.get(f"{settings.API_V1_STR}/users/{non_existent_uuid}")
 
         # THEN: The status code should be 404 (Not Found)
         assert response.status_code == 404
@@ -188,7 +192,7 @@ class TestUserCRUD:
         invalid_user_id = "not-a-uuid"
 
         # WHEN: A GET request is made to /users/{invalid_user_id}
-        response = client.get(f"/users/{invalid_user_id}")
+        response = client.get(f"{settings.API_V1_STR}/users/{invalid_user_id}")
 
         # THEN: The status code should be 422 (Unprocessable Entity)
         assert (
@@ -199,10 +203,10 @@ class TestUserCRUD:
         # GIVEN: At least one user exists in the system
         # (the created_user fixture has already created one)
         # Optionally, create more users if needed to test the list
-        # client.post("/users/", json=unique_user_payload_generator())
+        # client.post(f"{settings.API_V1_STR}/users/", json=unique_user_payload_generator())
 
         # WHEN: A GET request is made to /users/
-        response = client.get("/users/")
+        response = client.get(f"{settings.API_V1_STR}/users/")
 
         # THEN: The status code should be 200 (OK)
         assert response.status_code == 200
@@ -229,7 +233,7 @@ class TestUserCRUD:
         }
 
         # WHEN: A PUT request is made to /users/{user_id} with update data
-        response = client.put(f"/users/{user_id}", json=update_payload)
+        response = client.put(f"{settings.API_V1_STR}/users/{user_id}", json=update_payload)
 
         # THEN: The status code should be 200 (OK)
         assert response.status_code == 200
@@ -258,7 +262,7 @@ class TestUserCRUD:
         update_payload = {"first_name": "Partial Update Name"}
 
         # WHEN: A PUT request is made to /users/{user_id}
-        response = client.put(f"/users/{user_id}", json=update_payload)
+        response = client.put(f"{settings.API_V1_STR}/users/{user_id}", json=update_payload)
 
         # THEN: The status code should be 200 (OK)
         assert response.status_code == 200
@@ -272,7 +276,7 @@ class TestUserCRUD:
         update_payload = {"first_name": "Ghost User"}
 
         # WHEN: A PUT request is made to /users/{non_existent_uuid}
-        response = client.put(f"/users/{non_existent_uuid}", json=update_payload)
+        response = client.put(f"{settings.API_V1_STR}/users/{non_existent_uuid}", json=update_payload)
 
         # THEN: The status code should be 404 (Not Found)
         assert response.status_code == 404
@@ -285,7 +289,7 @@ class TestUserCRUD:
         update_payload = {"email": "not-a-valid-email"}
 
         # WHEN: A PUT request is made to /users/{user_id}
-        response = client.put(f"/users/{user_id}", json=update_payload)
+        response = client.put(f"{settings.API_V1_STR}/users/{user_id}", json=update_payload)
 
         # THEN: The status code should be 422 (Unprocessable Entity)
         assert response.status_code == 422
@@ -295,7 +299,7 @@ class TestUserCRUD:
     def test_update_user_username_to_existing_one(self, client, unique_user_payload):
         # GIVEN: Two existing users, User A and User B
         user_a_payload = unique_user_payload
-        response_a = client.post("/users/", json=user_a_payload)
+        response_a = client.post(f"{settings.API_V1_STR}/users/", json=user_a_payload)
         assert response_a.status_code == 201
         user_a_id = response_a.json()["id"]
 
@@ -306,7 +310,7 @@ class TestUserCRUD:
             "last_name": faker.last_name(),
             "role": "user",
         }
-        response_b = client.post("/users/", json=user_b_payload)
+        response_b = client.post(f"{settings.API_V1_STR}/users/", json=user_b_payload)
         assert response_b.status_code == 201
         user_b_username = response_b.json()["username"]
 
@@ -314,7 +318,7 @@ class TestUserCRUD:
         update_payload_for_a = {"username": user_b_username}
 
         # WHEN: A PUT request is made to update User A
-        response_update_a = client.put(f"/users/{user_a_id}", json=update_payload_for_a)
+        response_update_a = client.put(f"{settings.API_V1_STR}/users/{user_a_id}", json=update_payload_for_a)
 
         # THEN: The status code should be 400 or 409 (conflict)
         assert response_update_a.status_code in [400, 409]
@@ -324,12 +328,12 @@ class TestUserCRUD:
         # (create one specifically for this test to avoid relying on the `created_user` fixture
         # which could have side effects if using `yield` and then deleting here)
         payload = unique_user_payload
-        create_response = client.post("/users/", json=payload)
+        create_response = client.post(f"{settings.API_V1_STR}/users/", json=payload)
         assert create_response.status_code == 201
         user_id_to_delete = create_response.json()["id"]
 
         # WHEN: A DELETE request is made to /users/{user_id_to_delete}
-        delete_response = client.delete(f"/users/{user_id_to_delete}")
+        delete_response = client.delete(f"{settings.API_V1_STR}/users/{user_id_to_delete}")
 
         # THEN: The status code should be 200 (OK) or 204 (No Content)
         assert delete_response.status_code in [200, 204]
@@ -339,7 +343,7 @@ class TestUserCRUD:
             assert delete_response.json()["id"] == user_id_to_delete
 
         # VERIFY: The user can no longer be retrieved
-        get_response = client.get(f"/users/{user_id_to_delete}")
+        get_response = client.get(f"{settings.API_V1_STR}/users/{user_id_to_delete}")
         assert get_response.status_code == 404
 
     def test_delete_user_not_found(self, client):
@@ -347,7 +351,7 @@ class TestUserCRUD:
         non_existent_uuid = str(uuid.uuid4())
 
         # WHEN: A DELETE request is made to /users/{non_existent_uuid}
-        response = client.delete(f"/users/{non_existent_uuid}")
+        response = client.delete(f"{settings.API_V1_STR}/users/{non_existent_uuid}")
 
         # THEN: The status code should be 404 (Not Found)
         assert response.status_code == 404
