@@ -54,6 +54,7 @@ class UserUpdateApiSchema(BaseModel):
         None, min_length=1, max_length=50, pattern=r"^[a-zA-Z\s'-]+$"
     )
     active: Optional[bool] = None
+    role: Optional[UserRole] = None
 
     @field_validator("username")
     @classmethod
