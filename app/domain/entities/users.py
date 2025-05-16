@@ -26,7 +26,6 @@ class UserCreate(UserBase):
     username: str = Field(..., min_length=3, max_length=50)
     first_name: str
     last_name: str
-    hashed_password: str
 
 
 class UserUpdate(UserBase):
