@@ -5,6 +5,7 @@ from app.ports.logging import LoggerServicePort
 
 logger = injector.get(LoggerServicePort)
 
+
 def register_exception_handlers_from_config(app: FastAPI, exception_config: dict):
     for exc_type, config in exception_config.items():
         status_code = config.get("status_code", 500)
