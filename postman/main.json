@@ -1,0 +1,716 @@
+{
+	"info": {
+		"_postman_id": "replace-with-your-collection-id",
+		"name": "User Management API - CRUD Tests",
+		"description": "Robust test cases for the User Management API CRUD operations on /api/v1/users.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "User CRUD Operations",
+			"description": "Group of tests for Create, Read, Update, Delete.",
+			"item": [
+				{
+					"name": "POST /users - 201 Success - Create New User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser_valid_1\",\n  \"email\": \"test_valid_1@example.com\",\n  \"first_name\": \"Valid\",\n  \"last_name\": \"User One\",\n  \"role\": \"user\",\n  \"active\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								""
+							]
+						},
+						"description": "Creates a new user with valid data and stores its ID, email, username for subsequent tests."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"const responseData = pm.response.json();",
+									"",
+									"pm.test(\"Response body is object and has essential fields\", function () {",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData).to.have.property('id').to.be.a('string');",
+									"    pm.expect(responseData).to.have.property('username').to.be.a('string');",
+									"    pm.expect(responseData).to.have.property('email').to.be.a('string');",
+									"    pm.expect(responseData).to.have.property('created_at').to.be.a('string');",
+									"    pm.expect(responseData).to.have.property('updated_at').to.be.a('string');",
+									"});",
+									"",
+									"pm.test(\"Response data matches request data\", function () {",
+									"    const requestBody = JSON.parse(pm.request.body.raw);",
+									"    pm.expect(responseData.username).to.equal(requestBody.username);",
+									"    pm.expect(responseData.email).to.equal(requestBody.email);",
+									"    pm.expect(responseData.first_name).to.equal(requestBody.first_name);",
+									"    pm.expect(responseData.last_name).to.equal(requestBody.last_name);",
+									"    pm.expect(responseData.role).to.equal(requestBody.role);",
+									"    pm.expect(responseData.active).to.equal(requestBody.active);",
+									"});",
+									"",
+									"// Store created user details in environment variables",
+									"pm.environment.set(\"created_user_id\", responseData.id);",
+									"pm.environment.set(\"created_user_email\", responseData.email);",
+                                    "pm.environment.set(\"created_user_username\", responseData.username);",
+                                    "pm.environment.set(\"created_user_created_at\", responseData.created_at); // Store initial created_at for update test"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "GET /users/{user_id} - 200 Success - Read Created User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{created_user_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{created_user_id}}"
+							]
+						},
+						"description": "Retrieves the user created in the previous step using its ID."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const responseData = pm.response.json();",
+									"",
+									"pm.test(\"Response body ID matches requested ID\", function () {",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData).to.have.property('id').to.equal(pm.environment.get(\"created_user_id\"));",
+									"});",
+                                    "pm.test(\"Response email matches created user's email\", function () {",
+                                    "    pm.expect(responseData).to.have.property('email').to.equal(pm.environment.get(\"created_user_email\"));",
+                                    "});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "GET /users - 200 Success - Read Users List (No Params)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								""
+							]
+						},
+						"description": "Retrieves a list of all users (or first page) and checks if the created user is in the list."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const responseData = pm.response.json();",
+									"",
+									"pm.test(\"Response body is an array\", function () {",
+									"    pm.expect(responseData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"Created user is in the list\", function () {",
+									"    const createdUserId = pm.environment.get(\"created_user_id\");",
+									"    const foundUser = responseData.find(user => user.id === createdUserId);",
+									"    pm.expect(foundUser).to.be.an('object');",
+									"    pm.expect(foundUser).to.have.property('id', createdUserId);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+                {
+					"name": "GET /users - 200 Success - Read Users List (With Params)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/?skip=0&limit=10&active=true",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								""
+							],
+                            "query": [
+                                {
+                                    "key": "skip",
+                                    "value": "0"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "active",
+                                    "value": "true"
+                                }
+                            ]
+						},
+						"description": "Retrieves a list of users using pagination and filtering parameters. (Assumes created user is active)."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const responseData = pm.response.json();",
+									"",
+									"pm.test(\"Response body is an array\", function () {",
+									"    pm.expect(responseData).to.be.an('array');",
+									"});",
+									"",
+                                    "// Optional: Add tests to verify pagination/filtering results if possible with test data"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "PUT /users/{user_id} - 200 Success - Update Created User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Valid Updated\",\n  \"last_name\": \"User One Updated\",\n  \"role\": \"admin\",\n  \"active\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/{{created_user_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{created_user_id}}"
+							]
+						},
+						"description": "Updates the user created in the initial step."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const responseData = pm.response.json();",
+                                    "const createdTimestamp = new Date(pm.environment.get(\"created_user_created_at\"));",
+                                    "const updatedTimestamp = new Date(responseData.updated_at);",
+                                    "",
+									"pm.test(\"Response body ID matches requested ID\", function () {",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData).to.have.property('id').to.equal(pm.environment.get(\"created_user_id\"));",
+									"});",
+                                    "pm.test(\"Fields are updated\", function () {",
+                                        "pm.expect(responseData.first_name).to.equal(\"Valid Updated\");",
+                                        "pm.expect(responseData.last_name).to.equal(\"User One Updated\");",
+                                        "pm.expect(responseData.role).to.equal(\"admin\");",
+                                        "pm.expect(responseData.active).to.equal(false);",
+                                    "});",
+                                    "pm.test(\"updated_at is newer than created_at\", function () {",
+                                        "pm.expect(updatedTimestamp.getTime()).to.be.greaterThan(createdTimestamp.getTime());",
+                                    "});",
+                                    "pm.test(\"username and email are unchanged (assuming they are not updatable via PUT)\", function () {",
+                                        "pm.expect(responseData.username).to.equal(pm.environment.get(\"created_user_username\"));",
+                                        "pm.expect(responseData.email).to.equal(pm.environment.get(\"created_user_email\"));",
+                                    "});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+                {
+					"name": "GET /users/{user_id} - 200 Success - Read User After Update",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{created_user_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{created_user_id}}"
+							]
+						},
+						"description": "Retrieves the user after it has been updated to verify changes."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const responseData = pm.response.json();",
+									"",
+                                    "pm.test(\"Updated fields are correct\", function () {",
+                                        "pm.expect(responseData.first_name).to.equal(\"Valid Updated\");",
+                                        "pm.expect(responseData.last_name).to.equal(\"User One Updated\");",
+                                        "pm.expect(responseData.role).to.equal(\"admin\");",
+                                        "pm.expect(responseData.active).to.equal(false);",
+                                    "});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "DELETE /users/{user_id} - 204/200 Success - Delete Created User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{created_user_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{created_user_id}}"
+							]
+						},
+						"description": "Deletes the user created in the initial step."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Check status code is 204 No Content or 200 OK (depending on API implementation)",
+									"pm.test(\"Status code is 204 or 200\", function () {",
+									"    pm.expect(pm.response.status).to.be.oneOf([204, 200]);",
+									"});",
+                                    "// Optional: Check response body if 200 OK is expected with a message",
+                                    "// if (pm.response.status === 200) {",
+                                    "//   const responseData = pm.response.json();",
+                                    "//   pm.test(\"Response body contains confirmation message\", function() {",
+                                    "//     pm.expect(responseData).to.have.property('message', 'User deleted successfully'); // Adjust expected message",
+                                    "//   });",
+                                    "// }"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+                {
+					"name": "GET /users/{user_id} - 404 Failure - Read Deleted User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{created_user_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{created_user_id}}"
+							]
+						},
+						"description": "Attempts to read the user that was just deleted. Expects 404 Not Found."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Check status code is 404 Not Found",
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+                {
+					"name": "DELETE /users/{user_id} - 404 Failure - Delete Deleted User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{created_user_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{created_user_id}}"
+							]
+						},
+						"description": "Attempts to delete the user that was already deleted. Expects 404 Not Found."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Check status code is 404 Not Found",
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		},
+        {
+			"name": "Failure Cases",
+			"description": "Tests for expected error responses.",
+			"item": [
+				{
+					"name": "POST /users - 400 Failure - Duplicate Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"anotheruser_dup\",\n  \"email\": \"test_valid_1@example.com\",  \n  \"first_name\": \"Duplicate\",\n  \"last_name\": \"Test\",\n  \"role\": \"user\",\n  \"active\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								""
+							]
+						},
+						"description": "Attempts to create a user with an email that is expected to already exist (from the first test). Expects 400 with specific message."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Error message is 'Email already registered.'\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData).to.have.property('detail').to.equal('Email already registered.');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+                {
+					"name": "POST /users - 422 Failure - Missing Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"missingemailuser\",\n  \"first_name\": \"Missing\",\n  \"last_name\": \"Email\",\n  \"role\": \"user\",\n  \"active\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								""
+							]
+						},
+						"description": "Attempts to create a user missing the required 'email' field. Expects a validation error (usually 422)."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 422\", function () {",
+									"    pm.response.to.have.status(422);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+                {
+					"name": "POST /users - 422 Failure - Invalid Email Format",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"invalidemailformat\",\n  \"email\": \"not-an-email\",\n  \"first_name\": \"Invalid\",\n  \"last_name\": \"Format\",\n  \"role\": \"user\",\n  \"active\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								""
+							]
+						},
+						"description": "Attempts to create a user with an invalid email format. Expects a validation error (usually 422)."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 422\", function () {",
+									"    pm.response.to.have.status(422);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+                 {
+					"name": "PUT /users/{user_id} - 422 Failure - Invalid Role in Update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"role\": \"super_duper_admin\" \n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/{{created_user_id}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{created_user_id}}"
+							]
+						},
+						"description": "Attempts to update a user with an invalid role value. Expects a validation error (usually 422)."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 422\", function () {",
+									"    pm.response.to.have.status(422);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+                {
+					"name": "GET /users/{user_id} - 404 Failure - Read Non-Existent User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/b7e3c4d8-5a9f-4b1c-8d2a-0f9e8c7d6b5a",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"b7e3c4d8-5a9f-4b1c-8d2a-0f9e8c7d6b5a"
+							]
+						},
+						"description": "Attempts to read a user with a UUID that should not exist. Expects 404 Not Found."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+                 {
+					"name": "PUT /users/{user_id} - 404 Failure - Update Non-Existent User",
+					"request": {
+						"method": "PUT",
+						"header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"first_name\": \"Attempted Update\"\n}"
+                        },
+						"url": {
+							"raw": "{{baseUrl}}/users/c8a4b5e9-6b0c-4d2d-9f3b-1g0f9e8c7d6b",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"c8a4b5e9-6b0c-4d2d-9f3b-1g0f9e8c7d6b"
+							]
+						},
+						"description": "Attempts to update a user with a UUID that should not exist. Expects 404 Not Found."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+                 {
+					"name": "DELETE /users/{user_id} - 404 Failure - Delete Non-Existent User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/d9b5c6f0-7c1d-4e3e-af4c-2h1g0f9e8d7c",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"d9b5c6f0-7c1d-4e3e-af4c-2h1g0f9e8d7c"
+							]
+						},
+						"description": "Attempts to delete a user with a UUID that should not exist. Expects 404 Not Found."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}
